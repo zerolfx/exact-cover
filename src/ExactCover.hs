@@ -34,12 +34,12 @@ selectRow dlx row = foldl removeColumn dlx (columns row)
 candidates :: Ord a => DLX a -> [DLXRow a]
 candidates dlx = S.toList $ minimumBy (comparing S.size) $ M.elems dlx
 
-solve :: (Show a, Ord a) => DLX a -> Maybe [a]
+solve :: Ord a => DLX a -> Maybe [a]
 solve dlx | M.null dlx = Just []
 solve dlx = msum . map (\row -> fmap (val row :) (solve (selectRow dlx row))) $ candidates dlx
 
 
-solveAll :: (Show a, Ord a) => DLX a -> [[a]]
+solveAll :: Ord a => DLX a -> [[a]]
 solveAll dlx | M.null dlx = [[]]
 solveAll dlx = candidates dlx >>= (\row -> map (val row :) (solveAll (selectRow dlx row)))
 

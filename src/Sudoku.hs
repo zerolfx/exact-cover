@@ -1,10 +1,10 @@
-module Sudoku (sudoku, sudokuAll) where
+module Sudoku (sudoku, sudokuAll, sudokuAllPar) where
 
 import ExactCover
 import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.Char (ord, chr)
-
+import Control.Parallel.Strategies (using, parList, rseq)
 
 choices :: String -> [(Int, Int, Int)]
 choices s =
@@ -27,3 +27,11 @@ sudoku s = genSolution <$> solve (buildFromRows (map genRow (choices s)))
 
 sudokuAll :: String -> [String]
 sudokuAll s = genSolution <$> solveAll (buildFromRows (map genRow (choices s)))
+
+
+solveAllPar :: Ord a => DLX a -> [[a]]
+solveAllPar dlx | M.null dlx = [[]]
+solveAllPar dlx = candidates dlx >>= (\row -> map (val row :) (solveAllPar (selectRow dlx row)) `using` parList rseq)
+
+sudokuAllPar :: String -> [String]
+sudokuAllPar s = genSolution <$> solveAllPar (buildFromRows (map genRow (choices s)))

@@ -20,6 +20,7 @@ description:         Please see the README on GitHub at <https://github.com/zero
 dependencies:
 - base >= 4.7 && < 5
 - containers
+- parallel
 
 library:
   source-dirs: src

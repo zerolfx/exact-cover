@@ -4,7 +4,7 @@ import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.List (minimumBy)
 import Data.Ord (comparing)
-import Control.Parallel.Strategies (using, parList, rseq)
+import Control.Parallel.Strategies (parMap, rseq)
 
 candidatesRC :: Ord a => Int -> DLX a -> [DLXRow a]
 candidatesRC c dlx = S.toList $ minimumBy (comparing S.size) $ map snd $ filter ((<= c) . fst) $ M.toList dlx
@@ -17,7 +17,7 @@ solveRCCountPar :: Ord a => Int -> Int -> DLX a -> Int
 solveRCCountPar _ c dlx | M.null dlx || fst (M.findMin dlx) > c = 1
 solveRCCountPar level c dlx = 
     let solver = if level == 0 then solveRCCount else solveRCCountPar (level - 1) in
-        sum (map (solver c . selectRow dlx) (candidatesRC c dlx) `using` parList rseq)
+        sum $ parMap rseq (solver c . selectRow dlx) (candidatesRC c dlx)
 
 nqueens :: Int -> Int
 nqueens n = solveRCCount 1500 $ buildFromRows $ [
